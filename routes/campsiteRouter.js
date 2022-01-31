@@ -73,7 +73,7 @@ campsiteRouter
     .then((campsite) => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.json(campsite);
+      res.json(response);
     })
     .catch((err) => next(err));
   }); // end single campsite
@@ -131,7 +131,7 @@ campsiteRouter
             .then(campsite => {
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
-              res.json(campsite);
+              res.json(response);
             })
             .catch((err) => next(err));
         } else {
@@ -208,7 +208,7 @@ campsiteRouter
             .then((campsite) => {
               req.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
-              res.json(campsite);
+              res.json(response);
             })
             .catch((err) => next(err));
         } else if (!campsite) {
