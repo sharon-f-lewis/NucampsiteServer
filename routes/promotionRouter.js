@@ -1,5 +1,6 @@
 const express = require('express');
 const Promotion = require('../models/promotion');
+const authenticate = require('../authenticate');
 
 const promotionRouter = express.Router();
 
@@ -7,36 +8,36 @@ promotionRouter
   .route('/')
   .get((req, res, nest) => {
     Promotion.find()
-    .then(promotions => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(promotions);
-    })
-    .catch(err => next(err));
+      .then((promotions) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(promotions);
+      })
+      .catch((err) => next(err));
   })
-  .post((req, res, next) => {
+  .post(authenticate.verifyUser, (req, res, next) => {
     console.log(req.body);
     Promotion.create(req.body)
-    .then(promotion => {
-      console.log('Promotion created:', promotion);
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(promotion);
-    })
-    .catch(err => next(err));
+      .then((promotion) => {
+        console.log('Promotion created:', promotion);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(promotion);
+      })
+      .catch((err) => next(err));
   })
-  .put((req, res) => {
+  .put(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /promotions');
   })
-  .delete((req, res, next) => {
+  .delete(authenticate.verifyUser, (req, res, next) => {
     Promotion.deleteMany()
-    .then(response => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(response);
-    })
-    .catch(err => next(err));
+      .then((response) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+      })
+      .catch((err) => next(err));
   });
 
 promotionRouter
@@ -44,36 +45,42 @@ promotionRouter
   .get((req, res, next) => {
     console.log(req.params.promotionId);
     Promotion.findById(req.params.promotionId)
-    .then(promotion => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(promotion);
-    })
-    .catch(err => next(err));
+      .then((promotion) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(promotion);
+      })
+      .catch((err) => next(err));
   })
-  .post((req, res) => {
+  .post(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
-    res.end(`POST operation not supported on /promotions/${req.params.promotionId}`);
+    res.end(
+      `POST operation not supported on /promotions/${req.params.promotionId}`
+    );
   })
-  .put((req, res, next) => {
-    Promotion.findByIdAndUpdate(req.params.promotionId, {
-        $set: req.body
-      } , { new: true })
-    .then(promotion => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(promotion);
-    })
-    .catch((err) => next(err));
+  .put(authenticate.verifyUser, (req, res, next) => {
+    Promotion.findByIdAndUpdate(
+      req.params.promotionId,
+      {
+        $set: req.body,
+      },
+      { new: true }
+    )
+      .then((promotion) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(promotion);
+      })
+      .catch((err) => next(err));
   })
-  .delete((req, res, next) => {
+  .delete(authenticate.verifyUser, (req, res, next) => {
     Promotion.findByIdAndDelete(req.params.promotionId)
-    .then((promotion) => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(response);
-    })
-    .catch((err) => next(err));
+      .then((promotion) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+      })
+      .catch((err) => next(err));
   });
 
 module.exports = promotionRouter;

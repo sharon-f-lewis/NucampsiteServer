@@ -1,5 +1,6 @@
 const express = require('express');
 const Partner = require('../models/partner');
+const authenticate = require('../authenticate');
 
 const partnerRouter = express.Router();
 
@@ -8,36 +9,36 @@ partnerRouter
   .route('/')
   .get((req, res, nest) => {
     Partner.find()
-    .then(partners => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(partners);
-    })
-    .catch(err => next(err));
+      .then((partners) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(partners);
+      })
+      .catch((err) => next(err));
   })
-  .post((req, res, next) => {
+  .post(authenticate.verifyUser, (req, res, next) => {
     console.log(req.body);
     Partner.create(req.body)
-    .then(partner => {
-      console.log('Partner created:', partner);
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(partner);
-    })
-    .catch(err => next(err));
+      .then((partner) => {
+        console.log('Partner created:', partner);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(partner);
+      })
+      .catch((err) => next(err));
   })
-  .put((req, res) => {
+  .put(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /partners');
   })
-  .delete((req, res, next) => {
+  .delete(authenticate.verifyUser, (req, res, next) => {
     Partner.deleteMany()
-    .then(response => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(response);
-    })
-    .catch(err => next(err));
+      .then((response) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+      })
+      .catch((err) => next(err));
   }); // end of all partners
 
 // Routing for single partner
@@ -46,36 +47,42 @@ partnerRouter
   .get((req, res, next) => {
     console.log(req.params.partnerId);
     Partner.findById(req.params.partnerId)
-    .then(partner => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(partner);
-    })
-    .catch(err => next(err));
+      .then((partner) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(partner);
+      })
+      .catch((err) => next(err));
   })
-  .post((req, res) => {
+  .post(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
-    res.end(`POST operation not supported on /partners/${req.params.partnerId}`);
+    res.end(
+      `POST operation not supported on /partners/${req.params.partnerId}`
+    );
   })
-  .put((req, res, next) => {
-    Partner.findByIdAndUpdate(req.params.partnerId, {
-        $set: req.body
-      } , { new: true })
-    .then(partner => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(partner);
-    })
-    .catch((err) => next(err));
+  .put(authenticate.verifyUser, (req, res, next) => {
+    Partner.findByIdAndUpdate(
+      req.params.partnerId,
+      {
+        $set: req.body,
+      },
+      { new: true }
+    )
+      .then((partner) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(partner);
+      })
+      .catch((err) => next(err));
   })
-  .delete((req, res, next) => {
+  .delete(authenticate.verifyUser, (req, res, next) => {
     Partner.findByIdAndDelete(req.params.partnerId)
-    .then((partner) => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json');
-      res.json(response);
-    })
-    .catch((err) => next(err));
+      .then((partner) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(response);
+      })
+      .catch((err) => next(err));
   }); // end of single partner routing
 
 module.exports = partnerRouter;
